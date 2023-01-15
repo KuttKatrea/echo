@@ -9,13 +9,14 @@ buildscript {
 apply plugin: 'android'
 
 repositories {
-        jcenter()
+        // jcenter()
         maven { url "https://maven.google.com" }
+        maven { url "https://repo.maven.apache.org/maven2" }
 }
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.0.2"
+    buildToolsVersion "21.1.2"
 
     signingConfigs {
         release {
@@ -35,7 +36,7 @@ android {
         }
 
         debug {
-            signingConfig signingConfigs.release
+            // signingConfig signingConfigs.release
         }
     }
     lintOptions {

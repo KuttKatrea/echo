@@ -29,6 +29,11 @@ import simplesound.pcm.WavAudioFormat;
 import simplesound.pcm.WavFileWriter;
 import static eu.mrogalski.saidit.SaidIt.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.text.FieldPosition;
+
+
 public class SaidItService extends Service {
     static final String TAG = SaidItService.class.getSimpleName();
 
@@ -107,6 +112,7 @@ public class SaidItService extends Service {
     static final int STATE_READY = 0;
     static final int STATE_LISTENING = 1;
     static final int STATE_RECORDING = 2;
+    static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmssZ");
 
     private void innerStartListening() {
         switch(state) {
@@ -201,21 +207,26 @@ public class SaidItService extends Service {
 
                 int useBytes = bytesAvailable - skipBytes;
                 long millis  = System.currentTimeMillis() - 1000 * useBytes / FILL_RATE;
-                final int flags = DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_SHOW_DATE;
-                final String dateTime = DateUtils.formatDateTime(SaidItService.this, millis, flags);
-                String filename = "Echo - " + dateTime + ".wav";
+              
+                StringBuffer stringBuffer = new StringBuffer();
+                sdf.format(new Date(millis), stringBuffer, new FieldPosition(0));
+                final String dateTime = stringBuffer.toString();
+
+                String filename = dateTime + ".wav";
 
                 final String storagePath = Environment.getExternalStorageDirectory().getAbsolutePath();
-                String path = storagePath + "/" + filename;
+
+                String folderPath = storagePath + "/Echo";
+                File folder = new File(folderPath);
+
+                if (!folder.exists()) {
+                  folder.mkdir();
+                }
+
+                String path = folderPath + "/" + filename.replace(':', '_');
 
                 File file = new File(path);
-                try {
-                    file.createNewFile();
-                } catch (IOException e) {
-                    filename = filename.replace(':', '.');
-                    path = storagePath + "/" + filename;
-                    file = new File(path);
-                }
+
                 final WavAudioFormat format = new WavAudioFormat.Builder().sampleRate(SAMPLE_RATE).build();
                 try {
                     final WavFileWriter writer = new WavFileWriter(format, file);
@@ -282,9 +293,12 @@ public class SaidItService extends Service {
 
                 int useBytes = bytesAvailable - skipBytes;
                 long millis  = System.currentTimeMillis() - 1000 * useBytes / FILL_RATE;
-                final int flags = DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_SHOW_DATE;
-                final String dateTime = DateUtils.formatDateTime(SaidItService.this, millis, flags);
-                String filename = "Echo - " + dateTime + ".wav";
+
+                StringBuffer stringBuffer = new StringBuffer();
+                sdf.format(new Date(millis), stringBuffer, new FieldPosition(0));
+                final String dateTime = stringBuffer.toString();
+
+                String filename = dateTime + ".wav";
 
                 final String storagePath = Environment.getExternalStorageDirectory().getAbsolutePath();
                 String path = storagePath + "/" + filename;
